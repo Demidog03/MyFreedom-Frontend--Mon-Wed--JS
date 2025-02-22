@@ -87,25 +87,131 @@
 
 
 // Задание 2
-const clock = document.getElementById('clock')
-setInterval(() => {
-    const date = new Date()
-    let hours = date.getHours()
-    let minutes = date.getMinutes()
-    let seconds = date.getSeconds()
+// const clock = document.getElementById('clock')
+// setInterval(() => {
+//     const date = new Date()
+//     let hours = date.getHours()
+//     let minutes = date.getMinutes()
+//     let seconds = date.getSeconds()
 
-    if(seconds < 10) {
-        seconds = '0' + seconds
+//     if(seconds < 10) {
+//         seconds = '0' + seconds
+//     }
+//     if(minutes < 10) {
+//         seconds = '0' + seconds
+//     }
+//     if(hours < 10) {
+//         seconds = '0' + seconds
+//     }
+
+//     console.log(`${hours}:${minutes}:${seconds}`)
+//     clock.innerText = `${hours}:${minutes}:${seconds}`
+// }, 1000)
+
+
+// ЗАДАНИЕ 3
+// const todoTitleDiv = document.getElementById('todoTitleDiv')
+
+// const httpRequest = new XMLHttpRequest()
+// httpRequest.open('GET', 'https://jsonplaceholder.typicode.com/todos/1')
+// httpRequest.send();
+// httpRequest.onload = () => {
+//     const data = JSON.parse(httpRequest.response)
+//     todoTitleDiv.innerText = data.title
+// }
+
+
+// ЗАДАНИЕ 4
+// const ul = document.createElement('ul')
+
+// const httpRequest = new XMLHttpRequest()
+// httpRequest.open('GET', 'https://jsonplaceholder.typicode.com/todos')
+// httpRequest.send()
+// httpRequest.onload = () => {
+//     const data = JSON.parse(httpRequest.response)
+//     data.slice(0, 20).forEach(todo => {
+//         const li = document.createElement('li')
+//         li.innerText = todo.title
+//         ul.appendChild(li)
+//     })
+
+//     document.body.appendChild(ul)
+// }
+
+
+// ЗАДАНИЕ 5
+
+// 1 Отправить запрос
+const city = document.getElementById('city')
+const currentTime = document.getElementById('currentTime')
+const currentWeatherImg = document.getElementById('currentWeatherImg')
+const currentWeatherName = document.getElementById('currentWeatherName')
+const currentWeatherTemp = document.getElementById('currentWeatherTemp')
+const currentWindSpeed = document.getElementById('currentWindSpeed')
+const futureWeatherTemplate = document.getElementById('futureWeatherTemplate')
+const futureWeatherContainer = document.getElementById('futureWeatherContainer')
+
+const httpRequest = new XMLHttpRequest()
+httpRequest.open('GET', 'https://api.openweathermap.org/data/2.5/forecast?q=Astana&units=metric&appid=a94d0a5ac08570add4b47b8da933f247')
+httpRequest.send()
+httpRequest.onload = () => {
+    const data = JSON.parse(httpRequest.response)
+    console.log(data)
+    // Город
+    city.innerText = data.city.name
+
+    // Текущее время
+    currentTime.innerText = getTimeByOffset(data.city.timezone)
+
+    // Иконка текущей погоды
+    const iconId = data.list[0].weather[0].icon
+    currentWeatherImg.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
+
+    // Название текущей погоды
+    currentWeatherName.innerText = data.list[0].weather[0].main
+
+    // Температура текущей погоды
+    currentWeatherTemp.innerText = Math.round(data.list[0].main.temp) + ' °C'
+
+    // Скорость ветра
+    currentWindSpeed.innerText = data.list[0].wind.speed + 'm/s'
+
+
+    // Прогноз на след дни
+    const futureWeatherList = []
+    for(let i = 8; i < 40; i+=8) {
+        futureWeatherList.push(data.list[i])
     }
-    if(minutes < 10) {
-        seconds = '0' + seconds
-    }
-    if(hours < 10) {
-        seconds = '0' + seconds
-    }
+    
+    futureWeatherList.forEach(weather => {
+        const futureWeatherClone = futureWeatherTemplate.content.cloneNode(true)
+        const futureWeather = futureWeatherClone.getElementById('futureWeather')
+        const futureWeatherDate = futureWeatherClone.getElementById('futureWeatherDate')
+        const futureWeatherTime = futureWeatherClone.getElementById('futureWeatherTime')
+        const futureWeatherIcon = futureWeatherClone.getElementById('futureWeatherIcon')
+        const futureWeatherTemp = futureWeatherClone.getElementById('futureWeatherTemp')
 
-    console.log(`${hours}:${minutes}:${seconds}`)
-    clock.innerText = `${hours}:${minutes}:${seconds}`
-}, 1000)
+        // дата и время будущей погоды
+        const dateArray = weather.dt_txt.split(' ')
+        futureWeatherDate.innerText = dateArray[0]
+        futureWeatherTime.innerText = dateArray[1]
 
+        // иконка будущей погоды
+        const iconId = weather.weather[0].icon
+        futureWeatherIcon.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
 
+        // температура будущей погоды
+        futureWeatherTemp.innerText = Math.round(weather.main.temp) + ' °C'
+
+        // Добавляем каждый элемент погоды в контейнер
+        futureWeatherContainer.appendChild(futureWeather)
+    })
+
+}
+
+function getTimeByOffset(offsetInSeconds) {
+    const now = new Date();
+    const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+    const targetTime = new Date(utcTime + offsetInSeconds * 1000);
+    return `${targetTime.getHours()}:${targetTime.getMinutes()}`;
+}

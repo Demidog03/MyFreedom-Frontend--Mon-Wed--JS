@@ -5,9 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="./script.js" defer></script>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <button id="button">Нажать</button>
-    <h1 id="clock"></h1>
+    <!-- <button id="button">Нажать</button>
+    <h1 id="clock"></h1> -->
+    <!-- <div id="todoTitleDiv"></div> -->
+
+    <!-- ЗАДАНИЕ 5 -->
+    <div>
+        <div class="current-weather-container">
+            <div>
+                <p id="city">Minsk</p>
+                <p id="currentTime">23:48</p>
+            </div>
+            <div class="weather">
+                <img id="currentWeatherImg" src="" alt="" width="50px">
+                <p id="currentWeatherName">Snow</p>
+                <p id="currentWeatherTemp">-1 °C</p>
+            </div>
+            <div class="wind-speed">
+                <p>Speed</p>
+                <p id="currentWindSpeed">3.7m/s</p>
+            </div>
+        </div>
+        <div id="futureWeatherContainer" class="future-weather-container">
+            
+        </div>
+    </div>
+    <template id="futureWeatherTemplate">
+        <div id="futureWeather" class="future-weather">
+            <div>
+                <p id="futureWeatherDate">2025-12-04</p>
+                <p id="futureWeatherTime">21:00:00</p>
+            </div>
+            <img id="futureWeatherIcon" src="" alt="" width="40px">
+            <p id="futureWeatherTemp">-1 °C</p>
+        </div>
+    </template>
 </body>
 </html>

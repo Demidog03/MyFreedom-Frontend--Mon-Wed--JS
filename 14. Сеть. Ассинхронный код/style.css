@@ -1,0 +1,40 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.current-weather-container {
+    background-color: rgb(65, 152, 177);
+    color: white;
+    max-width: 370px;
+    padding: 15px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 20px;
+}
+
+.weather {
+    align-self: center;
+}
+
+.wind-speed {
+    display: flex;
+    justify-content: space-between;
+}
+
+.future-weather-container {
+    max-width: 370px;
+    margin-inline: auto;
+}
+
+.future-weather {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    border: 2px solid rgb(65, 152, 177);
+    border-top: 0;
+    font-size: 18px;
+}
