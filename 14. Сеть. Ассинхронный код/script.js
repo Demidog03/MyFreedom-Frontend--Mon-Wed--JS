@@ -74,7 +74,7 @@
 // 8000 = 4 * 2000
 // 10000 = 5 * 2000
 
-// 2-решение
+// 2-решениеfsafasfas
 // let num = 1
 // const interval = setInterval(() => {
 //     if(num === 6) {
@@ -150,64 +150,115 @@ const currentWeatherTemp = document.getElementById('currentWeatherTemp')
 const currentWindSpeed = document.getElementById('currentWindSpeed')
 const futureWeatherTemplate = document.getElementById('futureWeatherTemplate')
 const futureWeatherContainer = document.getElementById('futureWeatherContainer')
+const spinner = document.getElementById('spinner')
+const toastElement = document.getElementById('toast')
+const toastBody = document.getElementById('toastBody')
+const citySearchBtn = document.getElementById('citySearchBtn')
+const cityNameInput = document.getElementById('cityNameInput')
 
-const httpRequest = new XMLHttpRequest()
-httpRequest.open('GET', 'https://api.openweathermap.org/data/2.5/forecast?q=Astana&units=metric&appid=a94d0a5ac08570add4b47b8da933f247')
-httpRequest.send()
-httpRequest.onload = () => {
-    const data = JSON.parse(httpRequest.response)
-    console.log(data)
-    // Город
-    city.innerText = data.city.name
+getUserCurrentCity()
 
-    // Текущее время
-    currentTime.innerText = getTimeByOffset(data.city.timezone)
+function getUserCurrentCity() {
+    navigator.geolocation.getCurrentPosition((position) => {
+        console.log(position)
+        const lat = position.coords.latitude
+        const lon = position.coords.longitude
 
-    // Иконка текущей погоды
-    const iconId = data.list[0].weather[0].icon
-    currentWeatherImg.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
-
-    // Название текущей погоды
-    currentWeatherName.innerText = data.list[0].weather[0].main
-
-    // Температура текущей погоды
-    currentWeatherTemp.innerText = Math.round(data.list[0].main.temp) + ' °C'
-
-    // Скорость ветра
-    currentWindSpeed.innerText = data.list[0].wind.speed + 'm/s'
-
-
-    // Прогноз на след дни
-    const futureWeatherList = []
-    for(let i = 8; i < 40; i+=8) {
-        futureWeatherList.push(data.list[i])
-    }
-    
-    futureWeatherList.forEach(weather => {
-        const futureWeatherClone = futureWeatherTemplate.content.cloneNode(true)
-        const futureWeather = futureWeatherClone.getElementById('futureWeather')
-        const futureWeatherDate = futureWeatherClone.getElementById('futureWeatherDate')
-        const futureWeatherTime = futureWeatherClone.getElementById('futureWeatherTime')
-        const futureWeatherIcon = futureWeatherClone.getElementById('futureWeatherIcon')
-        const futureWeatherTemp = futureWeatherClone.getElementById('futureWeatherTemp')
-
-        // дата и время будущей погоды
-        const dateArray = weather.dt_txt.split(' ')
-        futureWeatherDate.innerText = dateArray[0]
-        futureWeatherTime.innerText = dateArray[1]
-
-        // иконка будущей погоды
-        const iconId = weather.weather[0].icon
-        futureWeatherIcon.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
-
-        // температура будущей погоды
-        futureWeatherTemp.innerText = Math.round(weather.main.temp) + ' °C'
-
-        // Добавляем каждый элемент погоды в контейнер
-        futureWeatherContainer.appendChild(futureWeather)
+        if (lat && lon) {
+            const httpRequest = new XMLHttpRequest()
+            const apiKey = '438a8270b0c9475c8269e66e9c8ba4a5'
+            httpRequest.open('GET', `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&q=${lat}%2C+${lon}`)
+            httpRequest.send()
+            httpRequest.onload = () => {
+                const data = JSON.parse(httpRequest.response)
+                const cityName = data.results[0].components.city
+                
+                fetchWeatherByCity(cityName)
+            }
+        }
     })
-
 }
+
+citySearchBtn.addEventListener('click', () => {
+    fetchWeatherByCity(cityNameInput.value)
+})
+
+function fetchWeatherByCity(cityName) {
+    // чистка старых данных
+    futureWeatherContainer.innerHTML = ''
+
+    const httpRequest = new XMLHttpRequest()
+    httpRequest.open('GET', `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&units=metric&appid=a94d0a5ac08570add4b47b8da933f247`)
+    spinner.classList.remove('hidden')
+    httpRequest.send()
+    httpRequest.onload = () => {
+        const data = JSON.parse(httpRequest.response)
+        const status = httpRequest.status
+
+        if(status === 200 && data) {
+            console.log(data)
+            // Город
+            city.innerText = data?.city?.name
+        
+            // Текущее время
+            currentTime.innerText = getTimeByOffset(data.city.timezone)
+        
+            // Иконка текущей погоды
+            const iconId = data.list[0].weather[0].icon
+            currentWeatherImg.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
+        
+            // Название текущей погоды
+            currentWeatherName.innerText = data.list[0].weather[0].main
+        
+            // Температура текущей погоды
+            currentWeatherTemp.innerText = Math.round(data.list[0].main.temp) + ' °C'
+        
+            // Скорость ветра
+            currentWindSpeed.innerText = data.list[0].wind.speed + 'm/s'
+        
+        
+            // Прогноз на след дни
+            const futureWeatherList = []
+            for(let i = 8; i < 40; i+=8) {
+                futureWeatherList.push(data.list[i])
+            }
+            
+            futureWeatherList.forEach(weather => {
+                const futureWeatherClone = futureWeatherTemplate.content.cloneNode(true)
+                const futureWeather = futureWeatherClone.getElementById('futureWeather')
+                const futureWeatherDate = futureWeatherClone.getElementById('futureWeatherDate')
+                const futureWeatherTime = futureWeatherClone.getElementById('futureWeatherTime')
+                const futureWeatherIcon = futureWeatherClone.getElementById('futureWeatherIcon')
+                const futureWeatherTemp = futureWeatherClone.getElementById('futureWeatherTemp')
+        
+                // дата и время будущей погоды
+                const dateArray = weather.dt_txt.split(' ')
+                futureWeatherDate.innerText = dateArray[0]
+                futureWeatherTime.innerText = dateArray[1]
+        
+                // иконка будущей погоды
+                const iconId = weather.weather[0].icon
+                futureWeatherIcon.src = `https://openweathermap.org/img/wn/${iconId}@2x.png`
+        
+                // температура будущей погоды
+                futureWeatherTemp.innerText = Math.round(weather.main.temp) + ' °C'
+        
+                // Добавляем каждый элемент погоды в контейнер
+                futureWeatherContainer.appendChild(futureWeather)
+            })
+        }
+        else {
+            const toast = new bootstrap.Toast(toastElement)
+            if(data?.message) {
+                toastBody.innerText = data.message
+            }
+            toast.show()
+        }
+        
+        spinner.classList.add('hidden')
+    }
+}
+
 
 function getTimeByOffset(offsetInSeconds) {
     const now = new Date();
